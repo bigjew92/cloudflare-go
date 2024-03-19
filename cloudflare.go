@@ -3,11 +3,10 @@ package main
 import (
 	"context"
 	"fmt"
-	"io"
-	"net/http"
 	"os"
 
 	cloudflare "github.com/cloudflare/cloudflare-go"
+	"github.com/rdegges/go-ipify"
 )
 
 var (
@@ -36,14 +35,9 @@ func main() {
 		return
 	}
 
-	resp, err := http.Get("https://api.ipify.org?format=text")
+	ip, err := ipify.GetIp()
 	if err != nil {
-		panic(err)
-	}
-	defer resp.Body.Close()
-	ip, err := io.ReadAll(resp.Body)
-	if err != nil {
-		panic(err)
+		fmt.Println("Couldn't get my IP address:", err)
 	}
 
 	for _, r := range records {
@@ -54,6 +48,8 @@ func main() {
 				if err != nil {
 					fmt.Printf("error: %s", err)
 				}
+			} else {
+				fmt.Printf("no update needed on %s\n", r.Name)
 			}
 		}
 	}
